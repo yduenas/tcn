@@ -1,0 +1,235 @@
+/*
+  Sistema de diseño Complement — extraido de /reference/complement-landing-4.html
+  (seccion 5 del CLAUDE.md). Se carga DESPUES de bootstrap.min.css para que
+  estos tokens y overrides ganen la cascada sin tocar el marcado de cada vista.
+*/
+
+:root{
+	--blue: #1B4C91;
+	--blue-dark: #123564;
+	--teal: #3ECAB5;
+	--ink: #0F2138;
+	--bg: #F6F8FA;
+	--slate: #5B6B7C;
+	--white: #FFFFFF;
+	--radius: 16px;
+	--amber: #B7791F;
+	--amber-bg: #FBF3E1;
+}
+
+body{
+	font-family:'Inter', sans-serif;
+	color:var(--ink);
+	background:var(--bg);
+	-webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4,h5,h6{
+	font-family:'Space Grotesk', sans-serif;
+	line-height:1.15;
+	letter-spacing:-0.01em;
+	color:var(--blue-dark);
+}
+.mono{
+	font-family:'IBM Plex Mono', monospace;
+	letter-spacing:0.06em;
+	text-transform:uppercase;
+}
+.eyebrow{
+	font-family:'IBM Plex Mono', monospace;
+	font-size:.72rem;
+	letter-spacing:.06em;
+	text-transform:uppercase;
+	color:var(--teal);
+	display:inline-block;
+	margin-bottom:.5rem;
+}
+/* Titulo de seccion dentro de una .card (ej. Objetivo del puesto/Funciones en el detalle de
+   vacante) -- mas grande y en negrita que .eyebrow para que no pase desapercibido, con un
+   subrayado teal como acento de marca. Pedido de Ytalo, 2026-07-15. */
+.section-title{
+	font-family:'IBM Plex Mono', monospace;
+	font-size:1.05rem;
+	font-weight:700;
+	letter-spacing:.03em;
+	text-transform:uppercase;
+	color:var(--blue-dark);
+	display:block;
+	margin-bottom:.75rem;
+	padding-bottom:.4rem;
+	border-bottom:2px solid var(--teal);
+}
+a{ color:var(--blue); }
+a:hover{ color:var(--blue-dark); }
+a:focus-visible, button:focus-visible{ outline:2px solid var(--teal); outline-offset:2px; }
+@media (prefers-reduced-motion: reduce){
+	*{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+}
+::selection{ background:var(--teal); color:var(--blue-dark); }
+
+/* ---------- Botones (recipe del landing; primary usa --blue, el verde queda solo para WhatsApp real) ---------- */
+.btn{ border-radius:12px; font-weight:600; }
+.btn-primary{
+	background:var(--blue); border-color:var(--blue);
+	box-shadow:0 8px 20px rgba(27,76,145,0.20);
+}
+.btn-primary:hover, .btn-primary:focus{
+	background:var(--blue-dark); border-color:var(--blue-dark);
+	box-shadow:0 10px 24px rgba(27,76,145,0.26);
+}
+.btn-outline-primary{ color:var(--blue); border-color:var(--blue); }
+.btn-outline-primary:hover{ background:var(--blue); border-color:var(--blue); }
+.btn-outline-secondary, .btn-outline-info, .btn-outline-dark{
+	color:var(--blue-dark); border-color:rgba(15,33,56,0.18); background:transparent;
+}
+.btn-outline-secondary:hover, .btn-outline-info:hover, .btn-outline-dark:hover{
+	border-color:var(--blue); background:rgba(27,76,145,0.05); color:var(--blue-dark);
+}
+.btn-outline-success{ color:#0F7A63; border-color:#0F7A63; }
+.btn-outline-success:hover{ background:#0F7A63; }
+.btn-outline-warning{ color:var(--amber); border-color:var(--amber); }
+.btn-outline-warning:hover{ background:var(--amber); color:#fff; }
+
+/* ---------- Badges (seccion 5: azul/teal para positivos-en curso, slate para neutros, rojo solo errores reales) ---------- */
+.badge{ font-weight:600; letter-spacing:.02em; padding:.4em .65em; }
+.badge-success{ background:var(--teal); color:var(--blue-dark); }
+.badge-info{ background:rgba(27,76,145,0.12); color:var(--blue); }
+.badge-secondary{ background:rgba(91,107,124,0.15); color:var(--slate); }
+.badge-warning{ background:var(--amber-bg); color:var(--amber); }
+.badge-dark{ background:var(--blue-dark); color:#fff; }
+.badge-light{ background:rgba(15,33,56,0.06); color:var(--slate); }
+
+/* ---------- Tarjetas ---------- */
+.card{
+	border-radius:var(--radius);
+	border:1px solid rgba(15,33,56,0.06);
+	box-shadow:none;
+}
+.card:hover{ box-shadow:0 12px 28px rgba(27,76,145,0.08); }
+
+/* Tarjeta de metrica (recipe .stat-card del landing) para dashboards */
+.stat-card{
+	background:var(--white);
+	border-radius:var(--radius);
+	border:1px solid rgba(15,33,56,0.06);
+	border-left:3px solid var(--teal);
+	padding:20px 22px;
+}
+.stat-card .stat-num{
+	font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:2.1rem;
+	color:var(--blue-dark); line-height:1.1; display:block;
+}
+.stat-card .stat-label{ color:var(--slate); font-size:.85rem; }
+
+/* ---------- Tablas ---------- */
+.table{ background:var(--white); border-radius:var(--radius); overflow:hidden; }
+.table thead th{
+	background:var(--bg); color:var(--slate); border-bottom:1px solid rgba(15,33,56,0.08);
+	font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; font-weight:600;
+}
+.table td, .table th{ border-color:rgba(15,33,56,0.06); vertical-align:middle; }
+.table-striped tbody tr:nth-of-type(odd){ background:rgba(246,248,250,0.6); }
+.table-hover tbody tr:hover{ background:rgba(27,76,145,0.04); }
+
+/* ---------- Formularios ---------- */
+.form-control:focus{ border-color:var(--teal); box-shadow:0 0 0 .2rem rgba(62,202,181,0.25); }
+label{ font-weight:600; font-size:.88rem; color:var(--ink); }
+
+/* Select2 (seccion "select2" de app.js) redibujado para verse igual que cualquier otro
+   .form-control de bootstrap -- por defecto trae su propio look genero, sin esto se nota
+   distinto al resto de selects del formulario. Pedido de Ytalo, 2026-07-15. */
+.select2-container--default .select2-selection--single{
+	height:calc(1.5em + .75rem + 2px);
+	border:1px solid #ced4da;
+	border-radius:.25rem;
+	display:flex;
+	align-items:center;
+	padding:0 .75rem;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered{
+	padding:0;
+	line-height:normal;
+	color:#495057;
+}
+.select2-container--default .select2-selection--single .select2-selection__placeholder{ color:#495057; }
+.select2-container--default .select2-selection--single .select2-selection__arrow{
+	height:100%;
+	right:8px;
+}
+.select2-container--default.select2-container--focus .select2-selection--single,
+.select2-container--default.select2-container--open .select2-selection--single{
+	border-color:var(--teal);
+	box-shadow:0 0 0 .2rem rgba(62,202,181,0.25);
+}
+.select2-dropdown{
+	border-color:rgba(15,33,56,0.15);
+	border-radius:8px;
+	overflow:hidden;
+}
+.select2-container--default .select2-results__option--highlighted[aria-selected]{
+	background-color:var(--blue);
+}
+.select2-search--dropdown .select2-search__field{
+	border:1px solid rgba(15,33,56,0.15);
+	border-radius:6px;
+	padding:.4rem .6rem;
+}
+.select2-container--default .select2-selection--single .select2-selection__clear{ margin-right:6px; }
+
+/* ---------- Secciones oscuras (recipe .problems/.about del landing) ---------- */
+.section-dark{ background:var(--blue-dark); color:#fff; border-radius:var(--radius); }
+.section-dark .eyebrow{ color:var(--teal); }
+.section-dark h1, .section-dark h2, .section-dark h3, .section-dark h4{ color:#fff; }
+.section-dark p{ color:rgba(255,255,255,0.75); }
+
+/* ============================================================
+   Chrome de la aplicacion autenticada (header + contenido)
+   ============================================================ */
+.app-header{
+	position:sticky; top:0; z-index:100;
+	background:rgba(246,248,250,0.92);
+	backdrop-filter:blur(10px);
+	border-bottom:1px solid rgba(15,33,56,0.08);
+}
+.app-header .app-header-inner{
+	max-width:1180px; margin:0 auto; padding:12px 24px;
+	display:flex; align-items:center; justify-content:space-between; gap:16px;
+	flex-wrap:wrap;
+}
+.app-header .logo-mark{ display:flex; align-items:center; gap:10px; }
+.app-header .logo-mark svg{ width:30px; height:30px; }
+.app-header .logo-word{
+	font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.05rem;
+	color:var(--blue-dark); letter-spacing:.01em;
+}
+.app-header-left{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.app-nav-links{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.app-nav-links a{
+	color:var(--slate); font-size:.86rem; font-weight:600; padding:8px 12px; border-radius:8px;
+	transition:background .2s, color .2s;
+}
+.app-nav-links a:hover{ color:var(--blue); background:rgba(27,76,145,0.06); }
+.app-nav-links a.activo{ color:var(--blue); background:rgba(27,76,145,0.08); }
+
+/* Dropdown de usuario (nombre + perfil + cambiar contraseña + cerrar sesion), al lado
+   del logo -- pedido de Ytalo, 2026-07-16 (antes era un bloque fijo sin dropdown, a la
+   derecha del header). Boton "fantasma" (sin fondo/borde propio) para que se sienta
+   parte del header, no un boton de accion mas. */
+.app-user-toggle{
+	display:flex; align-items:center; gap:8px; background:none; border:none; padding:6px 10px;
+	font-size:.85rem; color:var(--slate); border-radius:8px; cursor:pointer;
+}
+.app-user-toggle:hover, .app-user-toggle:focus{ background:rgba(27,76,145,0.06); color:var(--blue); outline:none; }
+.app-user-toggle .app-user-nombre{ font-weight:600; color:var(--ink); }
+.app-user-toggle .app-user-perfil{
+	font-family:'IBM Plex Mono', monospace; font-size:.68rem; text-transform:uppercase;
+	letter-spacing:.04em; color:var(--teal); background:rgba(62,202,181,0.12);
+	padding:2px 8px; border-radius:100px;
+}
+.app-user-dropdown .dropdown-menu{ font-size:.86rem; }
+.app-user-dropdown .app-user-correo{ font-size:.78rem; color:var(--slate); padding-bottom:2px; }
+
+/* Separador entre cada plantilla de correo por etapa (plantillasCorreo/index.php) --
+   antes era un rgba(15,33,56,0.08) casi invisible; Ytalo reporto que pasaba
+   desapercibido. Acento teal de marca en vez de un gris casi imperceptible. */
+.plantilla-etapa-separador{ border-bottom:2px solid rgba(62,202,181,0.35); }
+.app-main{ max-width:1180px; margin:0 auto; padding:32px 24px 64px; }

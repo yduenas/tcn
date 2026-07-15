@@ -1,0 +1,18 @@
+<IfModule mod_rewrite.c>
+Options -Multiviews
+RewriteEngine On
+# RewriteBase /public
+# RewriteBase /MVC-Complement/public
+
+# RewriteBase equivalent - Development
+RewriteCond %{HTTP_HOST} !^localhost$
+RewriteRule . - [E=REWRITEBASE:/MVC-Complement/public/]
+
+# RewriteBase equivalent - Production
+RewriteCond %{HTTP_HOST} ^complement.hrc$
+RewriteRule . - [E=REWRITEBASE:/public/]
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+</IfModule>

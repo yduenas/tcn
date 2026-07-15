@@ -1,0 +1,123 @@
+[
+	{ 	
+		"id" : 1,
+		"nombre_archivo" : "listafunciones",
+		"descripcion": "Listafunciones creadas en url_helper.php"
+	},
+	{ 
+		"id" : 2,
+		"nombre_archivo" : "redireccionar",
+		"descripcion": "Redirecciona via header location"
+	},
+	{ 
+		"id" : 3,
+		"nombre_archivo" : "redireccionar2",
+		"descripcion": "Redirecciona via JavaScript"
+	},
+	{ 
+		"id" : 4,
+		"nombre_archivo" : "redirect",
+		"descripcion": "Redirecciona ambas vias"
+	},
+	{ 
+		"id" : 5,
+		"nombre_archivo" : "redirecionarinactividad",
+		"descripcion": "Redirecciona por inactividad"
+	},
+	{ 
+		"id" : 6,
+		"nombre_archivo" : "redireccionarsweet_alert",
+		"descripcion": "Redirecciona por inactividad mostrando un SweerAlert"
+	},
+	{ 
+		"id" : 7,
+		"nombre_archivo" : "caducidadsession",
+		"descripcion": "Caduca la sesion por inactividad"
+	},
+	{ 
+		"id" : 8,
+		"nombre_archivo" : "reniec",
+		"descripcion": "Conecta y extrae datos RENIEC"
+	},
+	{ 
+		"id" : 9,
+		"nombre_archivo" : "email",
+		"descripcion": "Envia Correos"
+	},
+	{ 
+		"id" : 10,
+		"nombre_archivo" : "emailphp8",
+		"descripcion": "Envia Correos por PHP8"
+	},
+	{ 
+		"id" : 11,
+		"nombre_archivo" : "mensajeactualizado",
+		"descripcion": "SweetAlert con mensaje"
+	},
+	{ 
+		"id" : 12,
+		"nombre_archivo" : "enviarsms",
+		"descripcion": "Envia SMS"
+	},
+	{ 	
+		"id" : 13,
+		"nombre_archivo" : "librerias_css_js",
+		"descripcion": "Lista librerias cabecera y footer CSS y JS"
+	},
+	{ 	
+		"id" : 14,
+		"nombre_archivo" : "publics_javascripts",
+		"descripcion": "Lista los JS de public/js"
+	},
+	{ 	
+		"id" : 15,
+		"nombre_archivo" : "ver_contenido_carpeta",
+		"descripcion": "Lista archivos de carpetas"
+	},
+	{ 	
+		"id" : 16,
+		"nombre_archivo" : "ver_contenido_documento",
+		"descripcion": "Lista contenido de documento"
+	},
+	{ 	
+		"id" : 17,
+		"nombre_archivo" : "ver_contenido_documento_linea",
+		"descripcion": "Lista contenido de documento linea por linea"
+	},
+	{ 	
+		"id" : 18,
+		"nombre_archivo" : "parametros",
+		"descripcion": "Muestra los parametro"
+	},
+	{ 	
+		"id" : 19,
+		"nombre_archivo" : "parametroespecifico",
+		"descripcion": "Muestra el parametro indicado"
+	},
+	{ 	
+		"id" : 20,
+		"nombre_archivo" : "pagina404",
+		"descripcion": "Reenvia a pagina 404"
+	},
+	{ 	
+		"id" : 21,
+		"nombre_archivo" : "buscarjson",
+		"descripcion": "Devuelve contenido de JSON"
+	},
+	{ 	
+		"id" : 22,
+		"nombre_archivo" : "diahora",
+		"descripcion": "Devuelve la fecha actual"
+	},
+	{ 	
+		"id" : 23,
+		"nombre_archivo" : "alertsuccess",
+		"descripcion": "Imprime un alert"
+	},
+	{ 	
+		"id" : 24,
+		"nombre_archivo" : "",
+		"descripcion": ""
+	}
+
+]

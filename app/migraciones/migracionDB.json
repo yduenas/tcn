@@ -1,0 +1,102 @@
+[
+    {
+        "nombre_archivo": "004_rbac.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "005_empresas.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "006_vacantes.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "007_postulaciones.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "008_evaluaciones.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "009_entrevistas.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "010_vacante_contenido.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "011_password_reset.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "012_terna.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "013_auditoria.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "014_permiso_catalogos.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "015_banco_preguntas_completo.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "016_temporizador_evaluacion.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "017_cv_extraccion.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "018_catalogos_editables.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "019_empresa_contacto.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "020_permiso_base_datos.sql",
+        "fecha": "2026-07-06 00:00:00"
+    },
+    {
+        "nombre_archivo": "021_vacante_quitar_descripcion.sql",
+        "fecha": "2026-07-14 00:00:00"
+    },
+    {
+        "nombre_archivo": "022_candidato_dni_unico.sql",
+        "fecha": "2026-07-15 00:00:00"
+    },
+    {
+        "nombre_archivo": "023_estados_pre_contratado_desertado.sql",
+        "fecha": "2026-07-15 00:00:00"
+    },
+    {
+        "nombre_archivo": "024_competencias_por_vacante.sql",
+        "fecha": "2026-07-15 00:00:00"
+    },
+    {
+        "nombre_archivo": "025_plantillas_correo.sql",
+        "fecha": "2026-07-15 00:00:00"
+    },
+    {
+        "nombre_archivo": "026_permiso_migraciones.sql",
+        "fecha": "2026-07-15 00:00:00"
+    },
+    {
+        "nombre_archivo": "027_plantillas_correo_cc_seleccionador.sql",
+        "fecha": "2026-07-16 00:00:00"
+    },
+    {
+        "nombre_archivo": "028_permiso_cron.sql",
+        "fecha": "2026-07-16 00:00:00"
+    }
+]
