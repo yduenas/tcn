@@ -134,6 +134,17 @@ class Evaluacion{
 				return $this->db->execute();
 			}
 
+			/** Tiempo limite (minutos) editable desde el panel. A diferencia de vigencia_meses,
+			 * NUNCA puede quedar vacio/0/null -- Evaluaciones::segundosRestantes() trata un
+			 * tiempo_limite_min "falsy" como 0 minutos, lo que vence la evaluacion de inmediato
+			 * apenas el candidato intenta tomarla. El controlador valida que sea > 0 antes de llamar esto. **/
+			public function actualizarTiempoLimite($evaluacion_id, $tiempo_limite_min){
+				$this->db->query('UPDATE evaluaciones SET tiempo_limite_min = :tiempo WHERE id = :id');
+				$this->db->bind(':tiempo', $tiempo_limite_min);
+				$this->db->bind(':id', $evaluacion_id);
+				return $this->db->execute();
+			}
+
  }
 
 ?>

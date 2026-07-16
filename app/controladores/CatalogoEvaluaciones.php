@@ -39,6 +39,18 @@
 
 		}
 
+		/** A diferencia de Vigencia, este campo es obligatorio y > 0 (ver nota en Evaluacion::actualizarTiempoLimite()) **/
+		public function actualizarTiempoLimite($evaluacion_id){
+
+			$tiempo = (int) ($_POST['tiempo_limite_min'] ?? 0);
+			if($tiempo > 0){
+				$this->evaluacionModelo->actualizarTiempoLimite($evaluacion_id, $tiempo);
+			}
+
+			redirect('catalogoEvaluaciones/index');
+
+		}
+
 		public function preguntas($evaluacion_id){
 
 			$evaluacion = $this->evaluacionModelo->obtener($evaluacion_id);
