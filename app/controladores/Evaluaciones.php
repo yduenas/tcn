@@ -40,9 +40,24 @@
 				redirect('evaluaciones/'.$token);
 			}
 
+			// El reloj NUNCA arranca solo por cargar esta pagina (bug real reportado
+			// por Ytalo, 2026-07-16: un candidato veia "se agoto el tiempo" en su
+			// primer clic real -- causa: iniciar() se disparaba con cualquier GET a
+			// esta URL, incluida una vista previa automatica de WhatsApp/Telegram al
+			// compartir el link, o una pestaña abierta y abandonada sin enviar). Si
+			// todavia no empezo de verdad (estado='pendiente'), se muestra una
+			// pantalla de confirmacion -- el cronometro solo arranca con el POST
+			// real de esa pantalla (Evaluaciones::iniciar()).
 			if($pe->estado === 'pendiente'){
-				$this->postulacionEvaluacionModelo->iniciar($postulacion_evaluacion_id);
-				$pe = $this->postulacionEvaluacionModelo->obtener($postulacion_evaluacion_id);
+				$datos = [
+					'token' => $token,
+					'postulacion_evaluacion' => $pe,
+				];
+				$this->vista('inc/head', $datos);
+				$this->vista('portal/nav', $datos);
+				$this->vista('evaluaciones/confirmar', $datos);
+				$this->vista('inc/foot', $datos);
+				return;
 			}
 
 			$segundosRestantes = $this->segundosRestantes($pe);
@@ -63,6 +78,22 @@
 			$this->vista('portal/nav', $datos);
 			$this->vista('evaluaciones/tomar', $datos);
 			$this->vista('inc/foot', $datos);
+
+		}
+
+		/** Unico lugar que realmente arranca el cronometro -- solo via POST, disparado
+		 * por un clic real del candidato en la pantalla de confirmacion (nunca por un
+		 * simple GET/carga de pagina, ver nota en tomar()). **/
+		public function iniciar($token, $postulacion_evaluacion_id){
+
+			$tokenFila = $this->validarToken($token);
+			$pe = $this->validarPostulacionEvaluacion($tokenFila, $postulacion_evaluacion_id);
+
+			if($pe->estado === 'pendiente'){
+				$this->postulacionEvaluacionModelo->iniciar($postulacion_evaluacion_id);
+			}
+
+			redirect('evaluaciones/tomar/'.$token.'/'.$postulacion_evaluacion_id);
 
 		}
 
