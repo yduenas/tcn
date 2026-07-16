@@ -73,6 +73,13 @@
 											Forzar <?= htmlspecialchars($ev->evaluacion_nombre) ?>
 										</button>
 									</form>
+								<?php elseif($ev->candidato_evaluacion_estado === 'vencida'): ?>
+									<form method="post" action="<?= RUTA_URL ?>postulaciones/forzarEvaluacion/<?= $ev->id ?>" class="d-inline">
+										<button type="submit" class="btn btn-sm btn-link p-0" style="font-size:.72rem;"
+										        onclick="return confirm('Se le agotó el tiempo en \"<?= htmlspecialchars($ev->evaluacion_nombre) ?>\" sin terminarla. ¿Darle un nuevo intento?');">
+											Reintentar <?= htmlspecialchars($ev->evaluacion_nombre) ?>
+										</button>
+									</form>
 								<?php endif; ?>
 							<?php endforeach; ?>
 						<?php endif; ?>
