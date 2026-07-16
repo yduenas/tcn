@@ -19,6 +19,10 @@ class HTML2PDF_myPdf extends TCPDF
     protected $_myLastPageGroup = null;
     protected $_myLastPageGroupNb = 0;
 
+    // PHP8.2+ deprecia crear propiedades dinamicas -- $ws se usaba sin
+    // declarar (asignada la primera vez solo desde setWordSpacing()).
+    protected $ws = 0.;
+
     // used to make a radius with bezier : (4/3 * (sqrt(2) - 1))
     const MY_ARC = 0.5522847498;
 

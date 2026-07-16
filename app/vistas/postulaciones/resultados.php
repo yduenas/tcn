@@ -53,12 +53,20 @@
 		<div class="card-body">
 			<h6 class="card-title d-flex justify-content-between">
 				<?= htmlspecialchars($e->evaluacion_nombre) ?>
-				<span class="badge badge-<?= in_array($e->estado, ['completada', 'reutilizada']) ? 'success' : 'secondary' ?>">
-					<?= htmlspecialchars($e->estado) ?>
-				</span>
+				<?php if($e->candidato_evaluacion_estado === 'vencida'): ?>
+					<span class="badge badge-danger">Vencida (tiempo agotado)</span>
+				<?php elseif($e->candidato_evaluacion_estado === 'anulada'): ?>
+					<span class="badge badge-secondary">Anulada</span>
+				<?php else: ?>
+					<span class="badge badge-<?= in_array($e->estado, ['completada', 'reutilizada']) ? 'success' : 'secondary' ?>">
+						<?= htmlspecialchars($e->estado) ?>
+					</span>
+				<?php endif; ?>
 			</h6>
 
-			<?php if(!$e->resultado_json): ?>
+			<?php if($e->candidato_evaluacion_estado === 'vencida'): ?>
+				<p class="text-muted mb-0">Se agotó el tiempo antes de completar esta evaluación — no hay resultado.</p>
+			<?php elseif(!$e->resultado_json): ?>
 				<p class="text-muted mb-0">Todavía no completa esta evaluación.</p>
 			<?php else: ?>
 				<?php $r = json_decode($e->resultado_json, true); ?>

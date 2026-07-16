@@ -19,7 +19,7 @@ Ejemplo: /articulo/actualizar/4
 			$url = $this->getUrl();
 
 			//Buscar en controladores si el controlador existe
-			if (file_exists('../app/controladores/' .ucwords($url[0]).'.php')){
+			if (isset($url[0]) && file_exists('../app/controladores/' .ucwords($url[0]).'.php')){
 				//si existe se setea como controlador por defecto
 				$this->controladorActual = ucwords($url[0]);
 				//unset indice
@@ -60,6 +60,8 @@ Ejemplo: /articulo/actualizar/4
 				return $url;
 
 			}
+
+			return [];
 
 		}
 

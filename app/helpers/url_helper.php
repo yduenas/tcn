@@ -684,7 +684,7 @@ function reniec($dni){
 
     }
 
-    function ver_Contenido_Documento_Linea($ruta = '/', $archivo = 'readme.md', $ini, $fin){
+    function ver_Contenido_Documento_Linea($ruta, $archivo, $ini, $fin){
 
       $fp = fopen(RUTA_DOCUMENTO.$ruta.$archivo, "r") or die("Unable to open file!");
 
