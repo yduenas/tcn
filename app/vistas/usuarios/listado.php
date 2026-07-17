@@ -28,15 +28,23 @@
 				<td><?= htmlspecialchars($usuario->nombres.' '.$usuario->apellidos) ?></td>
 				<td><?= htmlspecialchars($usuario->email) ?></td>
 				<td>
-					<form method="post" action="<?= RUTA_URL ?>usuarios/cambiarPerfil/<?= $usuario->id ?>" class="form-inline">
-						<select name="perfil_id" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
-							<?php foreach($datos['perfiles'] as $perfil): ?>
-								<option value="<?= $perfil->id ?>" <?= $perfil->id == $usuario->perfil_id ? 'selected' : '' ?>>
-									<?= htmlspecialchars($perfil->nombre) ?>
-								</option>
-							<?php endforeach; ?>
-						</select>
-					</form>
+					<?php if($_SESSION['perfil_nombre'] === 'Empresa'): ?>
+						<?php // Autoservicio (2026-07-17): nunca editable por una Empresa -- si se
+						      // permitiera aunque sea sobre su propio Seleccionador, podria auto-
+						      // promoverlo a Administrador. Ver Usuarios::cambiarPerfil() (bloqueada
+						      // por completo para este perfil, no solo oculta aquí). ?>
+						<?= htmlspecialchars($usuario->perfil_nombre) ?>
+					<?php else: ?>
+						<form method="post" action="<?= RUTA_URL ?>usuarios/cambiarPerfil/<?= $usuario->id ?>" class="form-inline">
+							<select name="perfil_id" class="form-control form-control-sm mr-2" onchange="this.form.submit()">
+								<?php foreach($datos['perfiles'] as $perfil): ?>
+									<option value="<?= $perfil->id ?>" <?= $perfil->id == $usuario->perfil_id ? 'selected' : '' ?>>
+										<?= htmlspecialchars($perfil->nombre) ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+						</form>
+					<?php endif; ?>
 				</td>
 				<td><?= $usuario->empresa_nombre ? htmlspecialchars($usuario->empresa_nombre) : '<span class="text-muted">-</span>' ?></td>
 				<td><span class="badge badge-<?= $usuario->estado === 'activo' ? 'success' : 'secondary' ?>"><?= htmlspecialchars($usuario->estado) ?></span></td>

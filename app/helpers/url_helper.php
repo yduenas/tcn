@@ -884,6 +884,31 @@ function reniec($dni){
       }
     }
 
+    /** Dueño real de una vacante -- pedido de Ytalo, 2026-07-17: el perfil "Empresa"
+     * gana acceso tipo Seleccionador (crear vacantes, ver pipeline, entrevistas...)
+     * pero SIEMPRE scopeado a su propia empresa, nunca a otras. Administrador
+     * siempre es dueño de cualquier vacante; Seleccionador solo de las que tiene
+     * asignadas como responsable (mismo criterio ya usado en
+     * Postulaciones::moverEstado() desde 2026-07-14, ahora centralizado aqui y
+     * aplicado tambien donde antes faltaba -- Vacantes::ver/editar/publicar/...,
+     * Postulaciones::vacante()/resultados(), Entrevistas.php, Ternas::reporte(),
+     * Postulantes::index() -- ninguno de esos validaba dueño antes, solo el
+     * permiso generico). $vacante debe traer ->empresa_id y ->seleccionador_id
+     * (ya vienen en Vacante::obtener()/listar()). **/
+    function esDuenoDeVacante($vacante){
+      if(!$vacante){ return false; }
+      if($_SESSION['perfil_nombre'] === 'Administrador'){ return true; }
+      if($_SESSION['perfil_nombre'] === 'Seleccionador'){ return $vacante->seleccionador_id == $_SESSION['usuario_id']; }
+      if($_SESSION['perfil_nombre'] === 'Empresa'){ return $vacante->empresa_id == $_SESSION['empresa_id']; }
+      return false;
+    }
+
+    function requiereDuenoDeVacante($vacante){
+      if(!esDuenoDeVacante($vacante)){
+        redirect(CONTROLADOR_ERROR.'/'.METODO_ERROR);
+      }
+    }
+
     function quitar_duplicados_menu_sub($datos){
       $modulos_sub = array();
       foreach ($datos  as $co_modu_sub):

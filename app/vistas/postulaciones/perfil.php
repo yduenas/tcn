@@ -3,7 +3,8 @@
 	$p = $datos['postulacion'];
 ?>
 <div class="app-main" style="max-width:760px;">
-	<?php if($_SESSION['perfil_nombre'] === 'Empresa'): ?>
+	<?php if($_SESSION['perfil_nombre'] === 'Empresa' && !tienePermiso('ver_postulantes')): ?>
+		<?php // Empresa sin autoservicio (solo ve terna final/contratado, sin acceso al pipeline) -- 2026-07-17 ?>
 		<a href="<?= RUTA_URL ?>dashboard/index" class="btn btn-link px-0">&larr; Volver al dashboard</a>
 	<?php else: ?>
 		<a href="<?= RUTA_URL ?>postulaciones/vacante/<?= $p->vacante_id ?>" class="btn btn-link px-0">&larr; Volver al pipeline</a>

@@ -1,9 +1,10 @@
 <?php
 	/** Rediseño 2026-07-14: Administrador mueve postulantes de cualquier vacante;
-	 * Seleccionador solo de las que tiene asignadas (mismo criterio server-side
-	 * en Postulaciones::moverEstado()) -- se oculta el control "Mover a" en vez
-	 * de mostrar un botón que fallaría al hacer clic. **/
-	$puedeMover = $_SESSION['perfil_nombre'] === 'Administrador' || $datos['vacante']->seleccionador_id == $_SESSION['usuario_id'];
+	 * Seleccionador solo de las que tiene asignadas; Empresa solo de las suyas
+	 * propias (2026-07-17) -- mismo criterio server-side en Postulaciones::
+	 * moverEstado() (esDuenoDeVacante(), url_helper.php) -- se oculta el control
+	 * "Mover a" en vez de mostrar un botón que fallaría al hacer clic. **/
+	$puedeMover = esDuenoDeVacante($datos['vacante']);
 ?>
 <div class="app-main">
 	<a href="<?= RUTA_URL ?>vacantes/index" class="btn btn-link px-0">&larr; Volver a vacantes</a>

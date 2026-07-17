@@ -14,12 +14,27 @@
 
 		}
 
+		/** true si quien esta en sesion es un usuario Empresa (autoservicio, 2026-07-17): solo puede
+		 * ver/crear/editar SUS PROPIOS seleccionadores, nunca usuarios de otra empresa ni de perfil
+		 * Administrador/Seleccionador interno. **/
+		private function esEmpresa(){
+			return $_SESSION['perfil_nombre'] === 'Empresa';
+		}
+
+		/** Corta si el usuario objetivo no pertenece a la empresa de quien esta en sesion (solo aplica
+		 * cuando quien mira es Empresa -- Administrador nunca esta restringido aqui). **/
+		private function verificarPropiaEmpresa($usuario){
+			if($this->esEmpresa() && (!$usuario || $usuario->empresa_id != $_SESSION['empresa_id'])){
+				redirect(CONTROLADOR_ERROR.'/'.METODO_ERROR);
+			}
+		}
+
 		public function index(){
 
 			requierePermiso('crear_usuario');
 
 			$datos = [
-				'usuarios' => $this->usuarioModelo->listar(),
+				'usuarios' => $this->esEmpresa() ? $this->usuarioModelo->listarPorEmpresa($_SESSION['empresa_id']) : $this->usuarioModelo->listar(),
 				'perfiles' => $this->perfilModelo->listar(),
 				'error' => $_SESSION['usuario_estado_error'] ?? null,
 			];
@@ -54,13 +69,26 @@
 
 			requierePermiso('crear_usuario');
 
+			// Empresa (autoservicio, 2026-07-17): perfil y empresa NUNCA se leen del POST -- se fuerzan
+			// siempre a Seleccionador + su propia empresa, sin importar que el <select> ni siquiera se
+			// le muestre en el formulario (ver usuarios/formulario.php). Evita que una Empresa se cree
+			// a si misma (o a un tercero) como Administrador, o como usuario de otra empresa cliente.
+			if($this->esEmpresa()){
+				$perfilSeleccionador = $this->perfilModelo->obtenerPorNombre('Seleccionador');
+				$perfil_id = $perfilSeleccionador->id ?? null;
+				$empresa_id = $_SESSION['empresa_id'];
+			}else{
+				$perfil_id = $_POST['perfil_id'] ?? null;
+				$empresa_id = !empty($_POST['empresa_id']) ? $_POST['empresa_id'] : null;
+			}
+
 			$datos = [
 				'nombres' => trim($_POST['nombres'] ?? ''),
 				'apellidos' => trim($_POST['apellidos'] ?? ''),
 				'email' => trim($_POST['email'] ?? ''),
 				'password' => $_POST['password'] ?? '',
-				'perfil_id' => $_POST['perfil_id'] ?? null,
-				'empresa_id' => !empty($_POST['empresa_id']) ? $_POST['empresa_id'] : null,
+				'perfil_id' => $perfil_id,
+				'empresa_id' => $empresa_id,
 				'estado' => 'activo'
 			];
 
@@ -90,6 +118,7 @@
 			if(!$usuario){
 				redirect('usuarios/index');
 			}
+			$this->verificarPropiaEmpresa($usuario);
 
 			$datos = [
 				'usuario' => $usuario,
@@ -114,6 +143,7 @@
 			if(!$usuario){
 				redirect('usuarios/index');
 			}
+			$this->verificarPropiaEmpresa($usuario);
 
 			$datos = [
 				'nombres' => trim($_POST['nombres'] ?? ''),
@@ -142,10 +172,18 @@
 
 		}
 
-		/** Cambio de perfil de un usuario existente: accion sensible, queda en auditoria (seccion 1.4) **/
+		/** Cambio de perfil de un usuario existente: accion sensible, queda en auditoria (seccion 1.4).
+		 * Bloqueada por completo para Empresa (2026-07-17) -- a diferencia del resto de acciones de este
+		 * controlador, esta NUNCA se scopea por ownership: si se permitiera sobre su propio seleccionador,
+		 * una Empresa podria auto-promoverlo a Administrador (o a Empresa de otra compañía). El <select>
+		 * de perfil tampoco se le muestra en el listado (ver usuarios/listado.php), esto es la validacion
+		 * real de fondo. **/
 		public function cambiarPerfil($id){
 
 			requierePermiso('crear_usuario');
+			if($this->esEmpresa()){
+				redirect(CONTROLADOR_ERROR.'/'.METODO_ERROR);
+			}
 
 			$usuarioActual = $this->usuarioModelo->obtener($id);
 			$nuevoPerfilId = $_POST['perfil_id'] ?? null;
@@ -170,6 +208,7 @@
 				$_SESSION['usuario_estado_error'] = 'No puedes desactivar tu propio usuario.';
 				redirect('usuarios/index');
 			}
+			$this->verificarPropiaEmpresa($this->usuarioModelo->obtener($id));
 
 			$this->usuarioModelo->actualizarEstado($id, 'inactivo');
 			$this->auditoriaModelo->registrar($_SESSION['usuario_id'], 'desactivar_usuario', 'usuarios', $id, 'Usuario desactivado');
@@ -181,6 +220,8 @@
 		public function activar($id){
 
 			requierePermiso('crear_usuario');
+
+			$this->verificarPropiaEmpresa($this->usuarioModelo->obtener($id));
 
 			$this->usuarioModelo->actualizarEstado($id, 'activo');
 			$this->auditoriaModelo->registrar($_SESSION['usuario_id'], 'activar_usuario', 'usuarios', $id, 'Usuario reactivado');
@@ -198,6 +239,7 @@
 			if(!$usuario){
 				redirect('usuarios/index');
 			}
+			$this->verificarPropiaEmpresa($usuario);
 
 			$datos = [
 				'usuario' => $usuario,
@@ -221,6 +263,7 @@
 			if(!$usuario){
 				redirect('usuarios/index');
 			}
+			$this->verificarPropiaEmpresa($usuario);
 
 			$password = $_POST['password'] ?? '';
 			$confirmar = $_POST['confirmar_password'] ?? '';

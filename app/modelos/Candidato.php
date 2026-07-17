@@ -32,8 +32,14 @@ class Candidato{
 			 * (seccion 1.4) -- pedido de Ytalo 2026-07-15: Empresa/Puesto/DNI/fecha del ultimo estado como
 			 * columnas reales del DataTable, no como texto agrupado dentro de una sola celda. LEFT JOIN desde
 			 * candidatos para que un candidato sin ninguna postulacion todavia aparezca en el listado. **/
-			public function listarConPostulaciones(){
-				$this->db->query('
+			/** $empresa_id/$seleccionador_id (2026-07-17): scopea el listado global de postulantes a
+			 * solo lo propio -- sin esto, cualquier perfil con ver_postulantes veia TODAS las
+			 * postulaciones de TODAS las empresas (gap real: este listado comparte el permiso
+			 * ver_postulantes con el pipeline por vacante, que si se estaba scopeando desde 2026-07-17).
+			 * Cada fila ya es una postulacion sola (no agrupada por candidato), asi que un WHERE simple
+			 * no filtra de mas ni deja postulaciones de otra empresa colgando en la misma fila. **/
+			public function listarConPostulaciones($empresa_id = null, $seleccionador_id = null){
+				$sql = '
 					SELECT c.id AS candidato_id, c.nombres, c.apellidos, c.email, c.telefono, c.dni,
 					       p.id AS postulacion_id, p.fecha_ultimo_cambio,
 					       v.titulo AS vacante_titulo,
@@ -44,8 +50,15 @@ class Candidato{
 					LEFT JOIN vacantes v ON v.id = p.vacante_id
 					LEFT JOIN empresas e ON e.id = v.empresa_id
 					LEFT JOIN estados_postulacion ep ON ep.id = p.estado_id
-					ORDER BY c.apellidos, c.nombres, p.fecha_postulacion DESC
-				');
+				';
+				$condiciones = [];
+				if($empresa_id !== null){ $condiciones[] = 'v.empresa_id = :empresa_id'; }
+				if($seleccionador_id !== null){ $condiciones[] = 'v.seleccionador_id = :seleccionador_id'; }
+				if($condiciones){ $sql .= ' WHERE '.implode(' AND ', $condiciones); }
+				$sql .= ' ORDER BY c.apellidos, c.nombres, p.fecha_postulacion DESC';
+				$this->db->query($sql);
+				if($empresa_id !== null){ $this->db->bind(':empresa_id', $empresa_id); }
+				if($seleccionador_id !== null){ $this->db->bind(':seleccionador_id', $seleccionador_id); }
 				return $this->db->registros();
 			}
 

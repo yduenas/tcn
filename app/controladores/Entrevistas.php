@@ -22,6 +22,7 @@
 			if(!$postulacion){
 				redirect('vacantes/index');
 			}
+			requiereDuenoDeVacante($this->vacanteModelo->obtener($postulacion->vacante_id));
 
 			$datos = [
 				'postulacion_id' => $postulacion_id,
@@ -39,6 +40,12 @@
 		public function guardarAgenda($postulacion_id){
 
 			requierePermiso('agendar_entrevista');
+
+			$postulacion = $this->postulacionModelo->obtener($postulacion_id);
+			if(!$postulacion){
+				redirect('vacantes/index');
+			}
+			requiereDuenoDeVacante($this->vacanteModelo->obtener($postulacion->vacante_id));
 
 			$fecha = $_POST['fecha_agendada'] ?? '';
 			if($fecha === ''){
@@ -60,6 +67,7 @@
 			if(!$entrevista){
 				redirect('vacantes/index');
 			}
+			requiereDuenoDeVacante($this->vacanteModelo->obtener($entrevista->vacante_id));
 
 			$calificaciones = [];
 			foreach($this->entrevistaModelo->listarCalificaciones($id) as $c){
@@ -105,6 +113,7 @@
 			if(!$entrevista){
 				redirect('vacantes/index');
 			}
+			requiereDuenoDeVacante($this->vacanteModelo->obtener($entrevista->vacante_id));
 			if($entrevista->es_final && $_SESSION['perfil_nombre'] !== 'Administrador'){
 				redirect('entrevistas/detalle/'.$id);
 			}

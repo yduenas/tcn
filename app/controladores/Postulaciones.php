@@ -22,22 +22,27 @@
 		}
 
 		/** Perfil completo del postulante: datos, experiencia, educacion, habilidades y su CV (seccion 1.2).
-		 * Visible para staff con ver_postulantes, o para la Empresa dueña de la vacante solo si el
-		 * candidato ya llegó a Terna final/Contratado (rediseño 2026-07-14, ver Postulacion::visibleParaEmpresa()). **/
+		 * Visible para quien tiene ver_postulantes Y es dueño de la vacante (Administrador/Seleccionador
+		 * propio/Empresa propia -- 2026-07-17, ahora que Empresa tambien puede tener ver_postulantes).
+		 * Fallback para Empresa SIN ver_postulantes (o mirando la vacante de otra empresa, imposible hoy
+		 * pero se deja como defensa): solo ve una vez que el candidato llega a Terna final/Contratado,
+		 * mismo criterio ya establecido 2026-07-14 (Postulacion::visibleParaEmpresa()). **/
 		public function perfil($postulacion_id){
 
-			if($_SESSION['perfil_nombre'] === 'Empresa'){
+			$postulacion = $this->postulacionModelo->obtenerCompleta($postulacion_id);
+			if(!$postulacion){
+				redirect('vacantes/index');
+			}
+
+			if(tienePermiso('ver_postulantes')){
+				requiereDuenoDeVacante($this->vacanteModelo->obtener($postulacion->vacante_id));
+			}elseif($_SESSION['perfil_nombre'] === 'Empresa'){
 				$autorizacion = $this->postulacionModelo->visibleParaEmpresa($postulacion_id);
 				if(!$autorizacion || $autorizacion->empresa_id != $_SESSION['empresa_id']){
 					redirect('inicios/error');
 				}
 			}else{
-				requierePermiso('ver_postulantes');
-			}
-
-			$postulacion = $this->postulacionModelo->obtenerCompleta($postulacion_id);
-			if(!$postulacion){
-				redirect('vacantes/index');
+				redirect(CONTROLADOR_ERROR.'/'.METODO_ERROR);
 			}
 
 			$datos = [
@@ -56,7 +61,9 @@
 
 		}
 
-		/** Pipeline de postulantes de una vacante (seccion 1.2) **/
+		/** Pipeline de postulantes de una vacante (seccion 1.2). 2026-07-17: antes solo exigia el
+		 * permiso generico, sin verificar dueño -- cualquier Seleccionador (o, si se le daba el
+		 * permiso, cualquier Empresa) podia ver el pipeline de una vacante ajena. **/
 		public function vacante($vacante_id){
 
 			requierePermiso('ver_postulantes');
@@ -65,6 +72,7 @@
 			if(!$vacante){
 				redirect('vacantes/index');
 			}
+			requiereDuenoDeVacante($vacante);
 
 			$postulaciones = $this->postulacionModelo->listarPorVacante($vacante_id);
 			foreach($postulaciones as $p){
@@ -85,7 +93,9 @@
 
 		}
 
-		/** Detalle de resultados de evaluacion de un postulante (seccion 3.3: % + nivel, nunca el numero solo) **/
+		/** Detalle de resultados de evaluacion de un postulante (seccion 3.3: % + nivel, nunca el numero solo).
+		 * 2026-07-17: no verificaba dueño de la vacante -- cualquiera con el permiso podia ver resultados
+		 * de cualquier vacante ajena. **/
 		public function resultados($postulacion_id){
 
 			requierePermiso('ver_datos_sensibles_evaluacion');
@@ -94,6 +104,7 @@
 			if(!$postulacion){
 				redirect('vacantes/index');
 			}
+			requiereDuenoDeVacante($this->vacanteModelo->obtener($postulacion->vacante_id));
 
 			$entrevista = $this->entrevistaModelo->obtenerPorPostulacion($postulacion_id);
 
@@ -126,9 +137,10 @@
 		/**
 		 * Mover el estado de un postulante. Rediseño 2026-07-14: Administrador puede
 		 * mover postulantes de CUALQUIER vacante; Seleccionador solo de las vacantes
-		 * que tiene asignadas como responsable (Vacante::seleccionador_id, ver
-		 * Vacantes::validar()) -- antes cualquiera con el permiso ver_postulantes
-		 * podía mover el estado de cualquier vacante, sin importar quién la creó.
+		 * que tiene asignadas como responsable -- antes cualquiera con el permiso
+		 * ver_postulantes podía mover el estado de cualquier vacante, sin importar
+		 * quién la creó. 2026-07-17: la verificación se centralizó en
+		 * requiereDuenoDeVacante() (mismo criterio, ahora también cubre Empresa).
 		 **/
 		public function moverEstado($postulacion_id){
 
@@ -138,13 +150,7 @@
 			if(!$postulacion){
 				redirect('vacantes/index');
 			}
-
-			if($_SESSION['perfil_nombre'] !== 'Administrador'){
-				$vacante = $this->vacanteModelo->obtener($postulacion->vacante_id);
-				if(!$vacante || $vacante->seleccionador_id != $_SESSION['usuario_id']){
-					redirect('inicios/error');
-				}
-			}
+			requiereDuenoDeVacante($this->vacanteModelo->obtener($postulacion->vacante_id));
 
 			$estado_id = $_POST['estado_id'] ?? null;
 			if($estado_id){

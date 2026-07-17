@@ -21,6 +21,14 @@ class Perfil{
 				return $this->db->registro();
 			}
 
+			/** Por nombre exacto -- usado para resolver el id de "Seleccionador" sin hardcodearlo
+			 * (autoservicio de Empresa, 2026-07-17: fuerza este perfil al crear un usuario propio). **/
+			public function obtenerPorNombre($nombre){
+				$this->db->query('SELECT id, nombre, descripcion, es_predefinido FROM perfiles WHERE nombre = :nombre');
+				$this->db->bind(':nombre', $nombre);
+				return $this->db->registro();
+			}
+
 			/** Codigos de permiso asignados a un perfil **/
 			public function permisos($perfil_id){
 				$this->db->query('

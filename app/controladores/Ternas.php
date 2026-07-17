@@ -24,10 +24,10 @@
 			redirect('vacantes/index');
 		}
 
-		/** Reporte PDF del candidato (seccion 4): visible para staff con exportar_pdf,
-		 * o para la Empresa dueña de la vacante solo si el candidato ya llegó a
-		 * Terna final/Contratado (rediseño 2026-07-14 -- ya no depende de un envío
-		 * explícito de terna, ver Postulacion::visibleParaEmpresa()). */
+		/** Reporte PDF del candidato (seccion 4): visible para quien tiene exportar_pdf Y es dueño
+		 * de la vacante (Administrador/Seleccionador propio/Empresa propia -- 2026-07-17). Fallback
+		 * para Empresa SIN exportar_pdf: solo ve una vez que el candidato llega a Terna final/
+		 * Contratado (rediseño 2026-07-14, ver Postulacion::visibleParaEmpresa()). */
 		public function reporte($postulacion_id){
 
 			$postulacion = $this->postulacionModelo->obtenerCompleta($postulacion_id);
@@ -35,13 +35,15 @@
 				redirect('dashboard/index');
 			}
 
-			if($_SESSION['perfil_nombre'] === 'Empresa'){
+			if(tienePermiso('exportar_pdf')){
+				requiereDuenoDeVacante($this->vacanteModelo->obtener($postulacion->vacante_id));
+			}elseif($_SESSION['perfil_nombre'] === 'Empresa'){
 				$autorizacion = $this->postulacionModelo->visibleParaEmpresa($postulacion_id);
 				if(!$autorizacion || $autorizacion->empresa_id != $_SESSION['empresa_id']){
 					redirect('inicios/error');
 				}
 			}else{
-				requierePermiso('exportar_pdf');
+				redirect(CONTROLADOR_ERROR.'/'.METODO_ERROR);
 			}
 
 			$evaluaciones = $this->postulacionEvaluacionModelo->listarPorPostulacion($postulacion_id);

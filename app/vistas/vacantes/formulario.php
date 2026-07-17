@@ -7,17 +7,31 @@
 	<?php endif; ?>
 
 	<form method="post" action="<?= RUTA_URL.($vacante ? 'vacantes/actualizar/'.$vacante->id : 'vacantes/guardar') ?>">
-		<div class="form-group">
-			<label for="empresa_id">Empresa</label>
-			<select class="form-control" id="empresa_id" name="empresa_id" required>
-				<option value="">Selecciona una empresa</option>
-				<?php foreach($datos['empresas'] as $empresa): ?>
-					<option value="<?= $empresa->id ?>" <?= ($vacante && $vacante->empresa_id == $empresa->id) ? 'selected' : '' ?>>
-						<?= htmlspecialchars($empresa->nombre) ?>
-					</option>
-				<?php endforeach; ?>
-			</select>
-		</div>
+		<?php if($datos['empresaFija']): ?>
+			<?php
+				// Empresa (autoservicio, 2026-07-17): no elige empresa -- siempre es la suya.
+				// Sin <select> (nada que POSTear ni que forzar a mano) -- Vacantes::datosDesdePost()
+				// igual fuerza empresa_id de la sesion server-side, esto es solo la UI.
+				$empresaPropia = null;
+				foreach($datos['empresas'] as $empresa){ if($empresa->id == $datos['empresaFija']){ $empresaPropia = $empresa; break; } }
+			?>
+			<div class="form-group">
+				<label>Empresa</label>
+				<input type="text" class="form-control" value="<?= htmlspecialchars($empresaPropia->nombre ?? '') ?>" disabled>
+			</div>
+		<?php else: ?>
+			<div class="form-group">
+				<label for="empresa_id">Empresa</label>
+				<select class="form-control" id="empresa_id" name="empresa_id" required>
+					<option value="">Selecciona una empresa</option>
+					<?php foreach($datos['empresas'] as $empresa): ?>
+						<option value="<?= $empresa->id ?>" <?= ($vacante && $vacante->empresa_id == $empresa->id) ? 'selected' : '' ?>>
+							<?= htmlspecialchars($empresa->nombre) ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+		<?php endif; ?>
 		<div class="form-group">
 			<label for="seleccionador_id">Seleccionador asignado</label>
 			<select class="form-control" id="seleccionador_id" name="seleccionador_id" required>
@@ -29,7 +43,11 @@
 				<?php endforeach; ?>
 			</select>
 			<?php if(empty($datos['seleccionadores'])): ?>
-				<small class="form-text text-danger">No hay ningún usuario activo con perfil Seleccionador todavía — crea uno en Usuarios antes de poder guardar la vacante.</small>
+				<small class="form-text text-danger">
+					<?= $datos['empresaFija']
+						? 'Tu empresa todavía no tiene ningún Seleccionador propio activo — créalo en Usuarios antes de poder guardar la vacante.'
+						: 'No hay ningún usuario activo con perfil Seleccionador todavía — crea uno en Usuarios antes de poder guardar la vacante.' ?>
+				</small>
 			<?php endif; ?>
 		</div>
 		<div class="form-group">

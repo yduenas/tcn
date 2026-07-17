@@ -43,31 +43,42 @@ class Usuario{
 				return (int) $this->db->registro()->total > 0;
 			}
 
-			/** Usuarios activos con perfil "Seleccionador" -- para asignar responsable a una vacante (toda vacante debe tener uno, seccion 1.2 del CLAUDE.md). **/
-			public function listarSeleccionadoresActivos(){
-				$this->db->query('
+			/** Usuarios activos con perfil "Seleccionador" -- para asignar responsable a una vacante (toda vacante debe tener uno, seccion 1.2 del CLAUDE.md).
+			 * $empresa_id = null (default) -> solo seleccionadores INTERNOS de Complement (usuarios.empresa_id IS NULL) -- lista que ya usaban
+			 * Administrador/Seleccionador desde siempre. $empresa_id = un id -> solo seleccionadores PROPIOS de esa empresa cliente (concepto
+			 * nuevo, 2026-07-17: un usuario Empresa ahora puede tener su propio equipo de seleccionadores internos, scopeados a su empresa). **/
+			public function listarSeleccionadoresActivos($empresa_id = null){
+				$sql = '
 					SELECT u.id, u.nombres, u.apellidos
 					FROM usuarios u
 					INNER JOIN perfiles p ON p.id = u.perfil_id
 					WHERE p.nombre = \'Seleccionador\' AND u.estado = \'activo\'
-					ORDER BY u.nombres, u.apellidos
-				');
+				';
+				$sql .= $empresa_id !== null ? ' AND u.empresa_id = :empresa_id' : ' AND u.empresa_id IS NULL';
+				$sql .= ' ORDER BY u.nombres, u.apellidos';
+				$this->db->query($sql);
+				if($empresa_id !== null){ $this->db->bind(':empresa_id', $empresa_id); }
 				return $this->db->registros();
 			}
 
-			/** true si el usuario dado esta activo y su perfil es "Seleccionador" -- validacion de fondo, no solo el <select> del formulario. **/
-			public function esSeleccionadorActivo($id){
-				$this->db->query('
+			/** true si el usuario dado esta activo y su perfil es "Seleccionador" -- validacion de fondo, no solo el <select> del formulario.
+			 * $empresa_id sigue el mismo criterio que listarSeleccionadoresActivos(): null exige un seleccionador interno (sin empresa),
+			 * un id exige que pertenezca exactamente a esa empresa -- evita que una Empresa asigne un seleccionador de otra empresa a mano. **/
+			public function esSeleccionadorActivo($id, $empresa_id = null){
+				$sql = '
 					SELECT 1
 					FROM usuarios u
 					INNER JOIN perfiles p ON p.id = u.perfil_id
 					WHERE u.id = :id AND p.nombre = \'Seleccionador\' AND u.estado = \'activo\'
-				');
+				';
+				$sql .= $empresa_id !== null ? ' AND u.empresa_id = :empresa_id' : ' AND u.empresa_id IS NULL';
+				$this->db->query($sql);
 				$this->db->bind(':id', $id);
+				if($empresa_id !== null){ $this->db->bind(':empresa_id', $empresa_id); }
 				return (bool) $this->db->registro();
 			}
 
-			/** Listado completo de usuarios **/
+			/** Listado completo de usuarios -- solo Administrador (autoservicio de Empresa usa listarPorEmpresa()). **/
 			public function listar(){
 				$this->db->query('
 					SELECT u.id, u.nombres, u.apellidos, u.email,
@@ -77,6 +88,22 @@ class Usuario{
 					LEFT JOIN empresas e ON e.id = u.empresa_id
 					ORDER BY u.nombres, u.apellidos
 				');
+				return $this->db->registros();
+			}
+
+			/** Usuarios de una empresa cliente (autoservicio de Empresa, 2026-07-17) -- siempre sus propios
+			 * seleccionadores + su(s) propio(s) usuario(s) Empresa, nunca usuarios de otras empresas. **/
+			public function listarPorEmpresa($empresa_id){
+				$this->db->query('
+					SELECT u.id, u.nombres, u.apellidos, u.email,
+					       u.perfil_id, u.empresa_id, u.estado, u.fecha_creacion, p.nombre AS perfil_nombre, e.nombre AS empresa_nombre
+					FROM usuarios u
+					INNER JOIN perfiles p ON p.id = u.perfil_id
+					LEFT JOIN empresas e ON e.id = u.empresa_id
+					WHERE u.empresa_id = :empresa_id
+					ORDER BY u.nombres, u.apellidos
+				');
+				$this->db->bind(':empresa_id', $empresa_id);
 				return $this->db->registros();
 			}
 

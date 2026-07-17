@@ -22,9 +22,19 @@ class Vacante{
 				INNER JOIN usuarios u ON u.id = v.seleccionador_id
 			';
 
-			/** Listado completo para el panel del seleccionador/administrador **/
-			public function listar(){
-				$this->db->query($this->seleccion.' ORDER BY v.fecha_creacion DESC');
+			/** Listado para el panel -- Administrador ve todas (sin args). Seleccionador/Empresa
+			 * (2026-07-17, autoservicio) pasan su propio id para ver solo lo suyo -- antes
+			 * Vacantes::index() mostraba SIEMPRE el listado completo sin importar el perfil. **/
+			public function listar($seleccionador_id = null, $empresa_id = null){
+				$sql = $this->seleccion;
+				$condiciones = [];
+				if($seleccionador_id !== null){ $condiciones[] = 'v.seleccionador_id = :seleccionador_id'; }
+				if($empresa_id !== null){ $condiciones[] = 'v.empresa_id = :empresa_id'; }
+				if($condiciones){ $sql .= ' WHERE '.implode(' AND ', $condiciones); }
+				$sql .= ' ORDER BY v.fecha_creacion DESC';
+				$this->db->query($sql);
+				if($seleccionador_id !== null){ $this->db->bind(':seleccionador_id', $seleccionador_id); }
+				if($empresa_id !== null){ $this->db->bind(':empresa_id', $empresa_id); }
 				return $this->db->registros();
 			}
 
