@@ -53,12 +53,28 @@ class ExtractorCV{
 			return null;
 		}
 
-		/** Nombre: primera linea no vacia del documento **/
+		/** Nombre: primera linea no vacia del documento.
+		 * Muchos CVs alinean el nombre a la izquierda y un dato de contacto (telefono,
+		 * "Cel.: ...") a la derecha de esa misma linea visual, separados por varios
+		 * espacios en blanco (ej. "YTALO DUEÑAS MARTINO          Cel.: +51 994 084 294")
+		 * -- reportado por Ytalo, 2026-07-20: el campo Nombres quedaba con la linea
+		 * completa, telefono incluido. Se toma solo el primer bloque antes de ese salto
+		 * de columna, y se recorta ademas cualquier etiqueta de contacto pegada sin ese
+		 * espaciado (sin bloque de columna real). Si una linea queda vacia tras esto
+		 * (ej. la primera linea real era puro dato de contacto), se sigue con la
+		 * siguiente linea no vacia en vez de devolver nada. **/
 		private static function extraerNombre($texto){
 			foreach(self::lineas($texto) as $linea){
 				$linea = trim($linea);
-				if($linea !== ''){
-					return $linea;
+				if($linea === ''){
+					continue;
+				}
+				$bloques = preg_split('/\s{2,}|\t/', $linea);
+				$nombre = trim($bloques[0]);
+				$nombre = preg_replace('/\s*(Cel(ular)?\.?|Tel(éfono|efono)?\.?|Email|Correo|E-?mail)\s*:?\s*.*/i', '', $nombre);
+				$nombre = trim($nombre, " \t\n\r\0\x0B-–—:");
+				if($nombre !== ''){
+					return $nombre;
 				}
 			}
 			return null;
