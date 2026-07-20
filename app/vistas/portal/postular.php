@@ -6,13 +6,19 @@
 
 	// Un candidato que ya postulo antes (correo+DNI verificados, Portal::cargarDatos())
 	// prevalece sobre lo detectado del CV -- son datos reales guardados, no una heuristica.
-	$valNombres = $candidatoDraft['nombres'] ?? ($cvDraftDatos['nombre'] ?? '');
-	$valApellidos = $candidatoDraft['apellidos'] ?? '';
-	$valEmail = $candidatoDraft['email'] ?? ($cvDraftDatos['email'] ?? '');
-	$valTelefono = $candidatoDraft['telefono'] ?? ($cvDraftDatos['telefono'] ?? '');
-	$valDni = $candidatoDraft['dni'] ?? '';
+	// Los valores se recortan al mismo maxlength de cada input de abajo: un value=""
+	// precargado mas largo que el maxlength NO se trunca solo por tener el atributo
+	// (el navegador solo bloquea escribir MAS alla del limite, no un valor ya largo
+	// puesto por PHP) -- sin este recorte aqui, un candidato_draft con datos viejos
+	// (guardados antes de este fix) o un cv_draft mal detectado seguirian mostrando
+	// mas texto del esperado en el campo, aunque el input ya tenga maxlength.
+	$valNombres = limitarLongitud($candidatoDraft['nombres'] ?? ($cvDraftDatos['nombre'] ?? ''), 100);
+	$valApellidos = limitarLongitud($candidatoDraft['apellidos'] ?? '', 100);
+	$valEmail = limitarLongitud($candidatoDraft['email'] ?? ($cvDraftDatos['email'] ?? ''), 150);
+	$valTelefono = limitarLongitud($candidatoDraft['telefono'] ?? ($cvDraftDatos['telefono'] ?? ''), 20);
+	$valDni = limitarLongitud($candidatoDraft['dni'] ?? '', 15);
 	$valPretension = $candidatoDraft['pretension_salarial'] ?? '';
-	$valDisponibilidad = $candidatoDraft['disponibilidad'] ?? '';
+	$valDisponibilidad = limitarLongitud($candidatoDraft['disponibilidad'] ?? '', 100);
 	$valHabilidades = $candidatoDraft['habilidades'] ?? ($cvDraftDatos['habilidades'] ?? []);
 
 	$experienciaFilas = $candidatoDraft['experiencia_filas'] ?? [];
@@ -90,31 +96,31 @@
 		<div class="form-row">
 			<div class="form-group col-md-6">
 				<label>Nombres</label>
-				<input type="text" class="form-control" name="nombres" value="<?= htmlspecialchars($valNombres) ?>" required>
+				<input type="text" class="form-control" name="nombres" value="<?= htmlspecialchars($valNombres) ?>" maxlength="100" required>
 				<?php if($candidatoDraft): ?><small class="form-text text-muted">Cargado desde tu postulación anterior.</small>
 				<?php elseif(!empty($cvDraftDatos['nombre'])): ?><small class="form-text text-muted">Detectado automáticamente — verifica que sea correcto.</small><?php endif; ?>
 			</div>
 			<div class="form-group col-md-6">
 				<label>Apellidos</label>
-				<input type="text" class="form-control" name="apellidos" value="<?= htmlspecialchars($valApellidos) ?>" required>
+				<input type="text" class="form-control" name="apellidos" value="<?= htmlspecialchars($valApellidos) ?>" maxlength="100" required>
 			</div>
 		</div>
 		<div class="form-row">
 			<div class="form-group col-md-6">
 				<label>Correo</label>
-				<input type="email" class="form-control" name="email" value="<?= htmlspecialchars($valEmail) ?>" required>
+				<input type="email" class="form-control" name="email" value="<?= htmlspecialchars($valEmail) ?>" maxlength="150" required>
 				<?php if($candidatoDraft): ?><small class="form-text text-muted">Cargado desde tu postulación anterior.</small>
 				<?php elseif(!empty($cvDraftDatos['email'])): ?><small class="form-text text-muted">Detectado automáticamente — verifica que sea correcto.</small><?php endif; ?>
 			</div>
 			<div class="form-group col-md-3">
 				<label>Teléfono</label>
-				<input type="text" class="form-control" name="telefono" value="<?= htmlspecialchars($valTelefono) ?>">
+				<input type="text" class="form-control" name="telefono" value="<?= htmlspecialchars($valTelefono) ?>" maxlength="20">
 				<?php if($candidatoDraft): ?><small class="form-text text-muted">Cargado.</small>
 				<?php elseif(!empty($cvDraftDatos['telefono'])): ?><small class="form-text text-muted">Detectado automáticamente.</small><?php endif; ?>
 			</div>
 			<div class="form-group col-md-3">
 				<label>DNI</label>
-				<input type="text" class="form-control" name="dni" value="<?= htmlspecialchars($valDni) ?>" required>
+				<input type="text" class="form-control" name="dni" value="<?= htmlspecialchars($valDni) ?>" maxlength="15" required>
 			</div>
 		</div>
 		<div class="form-row">
@@ -124,12 +130,12 @@
 			</div>
 			<div class="form-group col-md-6">
 				<label>Disponibilidad</label>
-				<input type="text" class="form-control" name="disponibilidad" value="<?= htmlspecialchars($valDisponibilidad) ?>" placeholder="Ej. Inmediata">
+				<input type="text" class="form-control" name="disponibilidad" value="<?= htmlspecialchars($valDisponibilidad) ?>" maxlength="100" placeholder="Ej. Inmediata">
 			</div>
 		</div>
 		<div class="form-group">
 			<label>Habilidades (separadas por coma)</label>
-			<input type="text" class="form-control" name="habilidades" value="<?= htmlspecialchars(!empty($valHabilidades) ? implode(', ', $valHabilidades) : '') ?>">
+			<input type="text" class="form-control" name="habilidades" value="<?= htmlspecialchars(limitarLongitud(!empty($valHabilidades) ? implode(', ', $valHabilidades) : '', 300)) ?>" maxlength="300">
 			<?php if($candidatoDraft && !empty($valHabilidades)): ?><small class="form-text text-muted">Cargadas desde tu postulación anterior.</small>
 			<?php elseif(!empty($cvDraftDatos['habilidades'])): ?><small class="form-text text-muted">Detectadas automáticamente — verifica que sean correctas.</small><?php endif; ?>
 		</div>
@@ -147,11 +153,11 @@
 				<div class="form-row">
 					<div class="form-group col-md-6">
 						<label>Empresa</label>
-						<input type="text" class="form-control" name="experiencia_empresa[]" value="<?= htmlspecialchars($fila['empresa']) ?>">
+						<input type="text" class="form-control" name="experiencia_empresa[]" value="<?= htmlspecialchars(limitarLongitud($fila['empresa'], 150)) ?>" maxlength="150">
 					</div>
 					<div class="form-group col-md-6">
 						<label>Cargo</label>
-						<input type="text" class="form-control" name="experiencia_cargo[]" value="<?= htmlspecialchars($fila['cargo']) ?>">
+						<input type="text" class="form-control" name="experiencia_cargo[]" value="<?= htmlspecialchars(limitarLongitud($fila['cargo'], 150)) ?>" maxlength="150">
 					</div>
 				</div>
 				<div class="form-row">
@@ -170,7 +176,7 @@
 				</div>
 				<div class="form-group">
 					<label>Descripción</label>
-					<textarea class="form-control" name="experiencia_descripcion[]" rows="2"><?= htmlspecialchars($fila['descripcion']) ?></textarea>
+					<textarea class="form-control" name="experiencia_descripcion[]" rows="2" maxlength="1000"><?= htmlspecialchars(limitarLongitud($fila['descripcion'], 1000)) ?></textarea>
 				</div>
 			</div>
 			<?php endforeach; ?>
@@ -190,17 +196,17 @@
 				<div class="form-row">
 					<div class="form-group col-md-6">
 						<label>Institución</label>
-						<input type="text" class="form-control" name="educacion_institucion[]" value="<?= htmlspecialchars($fila['institucion']) ?>">
+						<input type="text" class="form-control" name="educacion_institucion[]" value="<?= htmlspecialchars(limitarLongitud($fila['institucion'], 150)) ?>" maxlength="150">
 					</div>
 					<div class="form-group col-md-6">
 						<label>Grado</label>
-						<input type="text" class="form-control" name="educacion_grado[]" value="<?= htmlspecialchars($fila['grado']) ?>" placeholder="Ej. Bachiller, Licenciado">
+						<input type="text" class="form-control" name="educacion_grado[]" value="<?= htmlspecialchars(limitarLongitud($fila['grado'], 100)) ?>" maxlength="100" placeholder="Ej. Bachiller, Licenciado">
 					</div>
 				</div>
 				<div class="form-row">
 					<div class="form-group col-md-4">
 						<label>Campo de estudio</label>
-						<input type="text" class="form-control" name="educacion_campo[]" value="<?= htmlspecialchars($fila['campo_estudio']) ?>">
+						<input type="text" class="form-control" name="educacion_campo[]" value="<?= htmlspecialchars(limitarLongitud($fila['campo_estudio'], 150)) ?>" maxlength="150">
 					</div>
 					<div class="form-group col-md-4">
 						<label>Desde</label>

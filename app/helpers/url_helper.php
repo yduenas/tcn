@@ -21,6 +21,20 @@ function formatearSoles($monto){
 	return 'S/ '.number_format((float) $monto, 2, '.', ',');
 }
 
+/** Trunca un string a un largo maximo (mb_substr, seguro con tildes/ñ). SQLite no
+ * impone ningun limite real sobre columnas TEXT (a diferencia de MySQL en los
+ * proyectos hermanos erp/mafort), asi que sin esto un campo como "nombre" del
+ * postulante podia terminar con el bloque de texto completo que la heuristica de
+ * ExtractorCV::extraerNombre() detectara como "primera linea" del PDF -- reportado
+ * por Ytalo, 2026-07-20: el campo Nombres quedaba con mucho mas texto del esperado
+ * tras "Autocompletar desde mi CV". Usar en cualquier punto que reciba texto libre
+ * del candidato (formulario o extraccion de CV) antes de guardarlo o de precargarlo
+ * en un input con maxlength -- un maxlength de HTML no trunca un value= ya largo. **/
+function limitarLongitud($valor, $max){
+	if($valor === null){ return $valor; }
+	return mb_substr(trim($valor), 0, $max);
+}
+
 /** Primera fuente TTF real que exista en el servidor -- necesaria para dibujar los
  * nombres de competencia (con tildes/ñ) en el radar con imagettftext(). GD no trae
  * ninguna TTF propia y este proyecto no vendoriza ninguna (sin Composer, mismo

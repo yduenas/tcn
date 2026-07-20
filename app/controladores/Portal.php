@@ -7,6 +7,24 @@
 		const TEXTO_DECLARACION = 'v1 - Declaro que la información en este formulario es correcta y soy responsable de su exactitud.';
 		private $pesoMaximoCV = 307200; // 300 KB -- pedido de Ytalo, 2026-07-16: el CV es 1 solo archivo por candidato (no por postulacion), asi que se pide reducido y de una hoja, no un CV documentado (certificados/diplomas escaneados)
 
+		// Largos maximos de los campos de texto libre del candidato (formulario y CV
+		// autocompletado). SQLite no impone ningun limite real sobre columnas TEXT, asi
+		// que estos valores son una convencion propia de la app, no algo leido de la BD
+		// -- reflejados tambien en el maxlength de cada input en portal/postular.php.
+		const MAX_NOMBRES = 100;
+		const MAX_APELLIDOS = 100;
+		const MAX_EMAIL = 150;
+		const MAX_TELEFONO = 20;
+		const MAX_DNI = 15;
+		const MAX_DISPONIBILIDAD = 100;
+		const MAX_HABILIDAD = 50;
+		const MAX_EXPERIENCIA_EMPRESA = 150;
+		const MAX_EXPERIENCIA_CARGO = 150;
+		const MAX_EXPERIENCIA_DESCRIPCION = 1000;
+		const MAX_EDUCACION_INSTITUCION = 150;
+		const MAX_EDUCACION_GRADO = 100;
+		const MAX_EDUCACION_CAMPO = 150;
+
 		public function __construct(){
 
 			$this->vacanteModelo = $this->modelo('Vacante');
@@ -177,7 +195,7 @@
 
 			$cv = $this->procesarCV($_FILES['cv'] ?? null, $id);
 			$texto = ExtractorCV::extraerTexto(RUTA_DOCUMENTO.$cv['ruta']);
-			$borrador = ExtractorCV::extraerDatos($texto);
+			$borrador = $this->limitarBorradorCV(ExtractorCV::extraerDatos($texto));
 
 			$_SESSION['cv_draft'] = [
 				'archivo_path' => $cv['ruta'],
@@ -190,6 +208,23 @@
 
 		}
 
+		/** Recorta a un largo razonable lo que ExtractorCV detecto del PDF antes de
+		 * guardarlo en el borrador de sesion -- sin esto, un PDF sin saltos de linea
+		 * reales podia hacer que extraerNombre() (heuristica "primera linea no vacia")
+		 * devolviera un bloque de texto larguisimo, precargando el input Nombres con
+		 * mucho mas de lo esperado (reportado por Ytalo, 2026-07-20). Los bloques de
+		 * educacion/experiencia se muestran como texto informativo (no van dentro de
+		 * un input), asi que no necesitan este limite. **/
+		private function limitarBorradorCV(array $borrador){
+			$borrador['nombre'] = limitarLongitud($borrador['nombre'], self::MAX_NOMBRES);
+			$borrador['email'] = limitarLongitud($borrador['email'], self::MAX_EMAIL);
+			$borrador['telefono'] = limitarLongitud($borrador['telefono'], self::MAX_TELEFONO);
+			$borrador['habilidades'] = array_map(function($h){
+				return limitarLongitud($h, self::MAX_HABILIDAD);
+			}, $borrador['habilidades']);
+			return $borrador;
+		}
+
 		public function enviar($id){
 
 			$vacante = $this->vacanteModelo->obtenerPublica($id);
@@ -197,10 +232,10 @@
 				redirect('portal/index');
 			}
 
-			$nombres = trim($_POST['nombres'] ?? '');
-			$apellidos = trim($_POST['apellidos'] ?? '');
-			$email = trim($_POST['email'] ?? '');
-			$dni = trim($_POST['dni'] ?? '');
+			$nombres = limitarLongitud(trim($_POST['nombres'] ?? ''), self::MAX_NOMBRES);
+			$apellidos = limitarLongitud(trim($_POST['apellidos'] ?? ''), self::MAX_APELLIDOS);
+			$email = limitarLongitud(trim($_POST['email'] ?? ''), self::MAX_EMAIL);
+			$dni = limitarLongitud(trim($_POST['dni'] ?? ''), self::MAX_DNI);
 
 			if($nombres === '' || $apellidos === '' || $email === '' || $dni === ''){
 				$this->rebotar($id, 'Nombres, apellidos, correo y DNI son obligatorios.');
@@ -242,10 +277,10 @@
 				'nombres' => $nombres,
 				'apellidos' => $apellidos,
 				'email' => $email,
-				'telefono' => trim($_POST['telefono'] ?? ''),
+				'telefono' => limitarLongitud(trim($_POST['telefono'] ?? ''), self::MAX_TELEFONO),
 				'dni' => $dni,
 				'pretension_salarial' => $_POST['pretension_salarial'] !== '' ? $_POST['pretension_salarial'] : null,
-				'disponibilidad' => trim($_POST['disponibilidad'] ?? ''),
+				'disponibilidad' => limitarLongitud(trim($_POST['disponibilidad'] ?? ''), self::MAX_DISPONIBILIDAD),
 			]);
 
 			$this->candidatoModelo->reemplazarExperiencia($candidato_id, $this->filasExperiencia());
@@ -393,12 +428,12 @@
 			$filas = [];
 			foreach($empresas as $i => $empresa){
 				$filas[] = [
-					'empresa' => trim($empresa),
-					'cargo' => trim($_POST['experiencia_cargo'][$i] ?? ''),
+					'empresa' => limitarLongitud(trim($empresa), self::MAX_EXPERIENCIA_EMPRESA),
+					'cargo' => limitarLongitud(trim($_POST['experiencia_cargo'][$i] ?? ''), self::MAX_EXPERIENCIA_CARGO),
 					'fecha_inicio' => $_POST['experiencia_inicio'][$i] ?? null,
 					'fecha_fin' => $_POST['experiencia_fin'][$i] ?? null,
 					'actualidad' => isset($_POST['experiencia_actual'][$i]),
-					'descripcion' => trim($_POST['experiencia_descripcion'][$i] ?? ''),
+					'descripcion' => limitarLongitud(trim($_POST['experiencia_descripcion'][$i] ?? ''), self::MAX_EXPERIENCIA_DESCRIPCION),
 				];
 			}
 			return $filas;
@@ -409,9 +444,9 @@
 			$filas = [];
 			foreach($instituciones as $i => $institucion){
 				$filas[] = [
-					'institucion' => trim($institucion),
-					'grado' => trim($_POST['educacion_grado'][$i] ?? ''),
-					'campo_estudio' => trim($_POST['educacion_campo'][$i] ?? ''),
+					'institucion' => limitarLongitud(trim($institucion), self::MAX_EDUCACION_INSTITUCION),
+					'grado' => limitarLongitud(trim($_POST['educacion_grado'][$i] ?? ''), self::MAX_EDUCACION_GRADO),
+					'campo_estudio' => limitarLongitud(trim($_POST['educacion_campo'][$i] ?? ''), self::MAX_EDUCACION_CAMPO),
 					'fecha_inicio' => $_POST['educacion_inicio'][$i] ?? null,
 					'fecha_fin' => $_POST['educacion_fin'][$i] ?? null,
 				];
@@ -491,7 +526,9 @@
 		private function habilidadesPost(){
 			$texto = trim($_POST['habilidades'] ?? '');
 			if($texto === '') return [];
-			return array_map('trim', explode(',', $texto));
+			return array_map(function($h){
+				return limitarLongitud(trim($h), self::MAX_HABILIDAD);
+			}, explode(',', $texto));
 		}
 
 	}
